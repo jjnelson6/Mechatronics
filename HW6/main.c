@@ -80,6 +80,7 @@ void draw_letter(char letter , unsigned short x, unsigned short y , unsigned sho
     int ascii_letter = (int) letter; //type casting 
     int i;// x index
     int j;//y index
+    
     for ( i = 0; i <= 4; i++) 
     {    char col = ASCII[ascii_letter - 32][i]; //ASCII values
     
@@ -111,6 +112,18 @@ void draw_string(char* m, unsigned short x, unsigned short y, unsigned short tex
     }    
 };
 
+void Bar(unsigned short x,  unsigned short y, int len, unsigned short color){
+
+    int i; 
+    char m[1]="H";
+    for(i=0; i<=len; i++) // write string
+    { 
+        draw_letter(m[1], x+i, y, color, color); 
+      
+    }    
+
+
+};
 
 
 
@@ -158,15 +171,48 @@ int main() {
     SPI1_init();
     LCD_init();
     LCD_clearScreen(0x03E0);
-    //draw_letter('F', 20, 20, 0xFFFF, 0x03E0);
 
-    char m[100];
-    sprintf(m," ");
+    char m[20]; //message
+    char f[10];//fps
+    int clock;// take time
+    int pix = 0;// pixels to be filled
     
-    draw_string(m,20,20,0xFFFF, 0xFFFF);
+    Bar(28,50,100,0xFFFF);//initialize empty progress bar
+    
+    while(1) {
+       _CP0_SET_COUNT(0);
+            
+        
+       if (pix < 100) //Draw words and bars on screen
+        {
+        clock = _CP0_GET_COUNT();    
+        sprintf(m,"Hello World %d",pix);
+        draw_string(m,28,32,0xFFFF, 0x03E0); 
+        Bar(28,50,pix,0x000F);
+        pix++;    
+       }
+       
+       else
+       {//reset when progress bar is filled
+        pix = 0;
+        Bar(28,50,100,0xFFFF);
+        
+        }
+        
+        int fps = 24000000/(_CP0_GET_COUNT() - clock); // calculate frame per seconds
+        sprintf(f,"FPS= %d",fps);
+        draw_string(f,28,70,0xFFFF,0x03E0); //draw FPS
+        
+        while (_CP0_GET_COUNT() < 2400000){ //Running at 10 Hz
+           //do nothing
+      }
+      
+        
+    }
+        
     
     
-    //while(1) {}
+    
 
 
 }
