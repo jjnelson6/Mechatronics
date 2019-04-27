@@ -136,17 +136,20 @@ void initIMU()
   i2c_master_send(address << 1|1); // read
      
   int k=0;
-  while ( k<length) 
+  while ( k < length-1) 
   {  
     data[k] = i2c_master_recv();
   
-    if (k == length-1){i2c_master_ack(1);//done reading
+    //if (k == length-1){i2c_master_ack(1);//done reading
     
-    }
-    else{i2c_master_ack(0);} // keep reading}
+    //}
+    i2c_master_ack(0); // keep reading}
     k++; 
   
-  }              
+  }  
+  
+  data[k]=i2c_master_recv();
+  i2c_master_ack(1);
   i2c_master_stop(); //stop
  }
  
@@ -196,18 +199,170 @@ void LCD_drawstring(char* m, unsigned short x, unsigned short y, unsigned short 
     }    
 }
 
-void LCD_bar(unsigned short x,  unsigned short y, int len, unsigned short color)
+void LCD_vertbar(unsigned short x,  unsigned short y, int len, int wid, unsigned short color)
 {
 
     int i; 
-    char m[1]="H";
-    for(i=0; i<=len; i++) // write string
-    { 
-        LCD_drawletter(m[1], x+i, y, color, color); 
+    int j;
+    
+    for (j =0; j< wid/2 ; j++)
+    {
+        
+        for(i=0; i<len/2; i++) 
+        { 
+            LCD_drawPixel(x + i, y + j, color); 
       
-    }    
-
+        }    
+    }
+   
+    for (j = 0; j< wid/2 ; j++)
+    {
+        
+        for(i=0; i<len/2; i++) 
+        { 
+            LCD_drawPixel(x + i, y - j, color); 
+      
+        }    
+    } 
 }
+
+void LCD_horzbar(unsigned short x,  unsigned short y, int len, int wid, unsigned short color)
+{
+
+    int i; 
+    int j;
+    
+    for (j =0; j< wid/2 ; j++)
+    {
+        
+        for(i=0; i<len/2; i++) 
+        { 
+            LCD_drawPixel(x + i, y + j, color); 
+      
+        }    
+    }
+   
+    for (j =0; j< wid/2 ; j++)
+    {
+        
+        for(i=0; i<len/2; i++) 
+        { 
+            LCD_drawPixel(x - i, y + j, color); 
+      
+        }    
+    } 
+}
+
+
+void LCD_horzfill(unsigned short x,  unsigned short y, signed short x_accl_n , int len, int wid, unsigned short color_on, unsigned short color_off)
+{
+
+    int dy; 
+    int dx;
+    int max_wid = wid/2; 
+    
+    
+    for(dy = 0; dy <wid/2; dy++) 
+    { 
+        
+         
+        if (x_accl_n > 0)
+        {
+            
+            for (dx= 0 ; dx <x_accl_n ; dx++)
+            {
+            LCD_drawPixel(x + dx, y + dy, color_on);
+            }
+            
+            for (dx = 1; dx < (len/2 - x_accl_n); dx++ )
+            {
+                LCD_drawPixel(x + x_accl_n + dx, y + dy, color_off);
+                LCD_drawPixel(x - dx, y + dy, color_off);
+            }
+            
+        }
+        
+        else if ( x_accl_n < 0)
+        { 
+            
+            for (dx=0 ; dx< abs(x_accl_n); dx++ )
+            {
+            LCD_drawPixel(x - dx, y + dy, color_on);
+            }   
+            for (dx = 1; dx < (len/2 + x_accl_n) ; dx++ )
+            {
+                LCD_drawPixel(x + x_accl_n - dx, y + dy, color_off);
+                LCD_drawPixel(x + dx, y + dy, color_off);
+            }
+        
+        }
+    }
+        
+    
+}
+
+
+
+void LCD_vertfill(unsigned short x,  unsigned short y, signed short y_accl_n , int len, int wid, unsigned short color_on, unsigned short color_off)
+{
+
+    int dy; 
+    int dx; 
+    
+    
+    for(dx = 0; dx <len/2; dx++) 
+    { 
+        
+         
+        if (y_accl_n > 0)
+        {
+            
+            for (dy= 0 ; dy <y_accl_n ; dy++)
+            {
+            LCD_drawPixel(x + dx, y + dy, color_on);
+            }
+            
+            for (dy = 1; dy < (wid/2 - y_accl_n); dy++ )
+            {
+                LCD_drawPixel(x + dx, y + y_accl_n + dy, color_off);
+                LCD_drawPixel(x + dx, y - dy, color_off);
+                
+            }
+            
+        }
+        
+        else if ( y_accl_n < 0)
+        { 
+            
+            for (dy =0 ; dy < abs(y_accl_n); dy++ )
+            {
+            LCD_drawPixel(x + dx, y - dy, color_on);
+            }   
+            for (dy = 1; dy < (wid/2 + y_accl_n) ; dy++ )
+            {
+                LCD_drawPixel(x + dx, y + y_accl_n - dy, color_off);
+                LCD_drawPixel(x + dx, y + dy, color_off);
+            }
+        
+        }
+    }
+        
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 int main() {
@@ -252,19 +407,18 @@ int main() {
     initIMU();
     SPI1_init();
     LCD_init();
-    LCD_clearScreen(0x780F);
+    LCD_clearScreen(ILI9341_PURPLE);
     
     setIMU(0x10,0b10000010); //Set Linear Acceleration 
     setIMU(0x11,0b10001000); // Set Angular rate
     setIMU(0x12,0b00000100); // Control Register 
     
+    unsigned short origin_Y = 170;
+    unsigned short origin_X = 120;
+    int inter_x = 0;
     
-    
-    
-    
-    
-   
-    
+    LCD_horzbar(origin_X,origin_Y,200,20,ILI9341_WHITE ); // horz bar
+    LCD_vertbar(origin_X,origin_Y,20,200,ILI9341_WHITE ); //vert bar
     
     /*
     char check[10]; 
@@ -284,21 +438,49 @@ int main() {
 
    unsigned char data[14];     
    signed short comb_data[7];  
-   char check[10];
-    
+   char checkY[50];
+   char checkX[50]; 
         
     _CP0_SET_COUNT(0);
      
   
     I2C_read_multiple(0b1101011,0x20,data,14);
     
-    int i;
-    for(i=0; i<6; i++){
-        comb_data[i] = (data[i*2]>> 1) | (data[i*2+1] ); 
-        
+    int i=0;
+    short high;
+    short low;
+    while ( i < 7){
+        high = data[i*2+1];
+        low= data[i*2];
+        comb_data[i] =  ( high << 8)| low  ; 
+        i++;
     }
-    sprintf(check,"Reading: %d", comb_data[5]);
-    LCD_drawstring(check,28,35,0x0000,0x780F);
+    signed short Yaccl = comb_data[5];
+    signed short Xaccl = comb_data[4];
+    
+    //sprintf(checkY,"Y= %d", Yaccl);
+    //LCD_drawstring(checkY,28,35,ILI9341_WHITE ,ILI9341_PURPLE ); 
+    //sprintf(checkX,"X= %d", Xaccl);
+    //LCD_drawstring(checkX,28,50,ILI9341_WHITE,ILI9341_PURPLE);
+    
+    
+    short X_accl_n =  - Xaccl/100;
+    short Y_accl_n = - Yaccl/100;
+   
+    
+    
+    char checkvx[20];
+    char checkvy[20];
+    
+    sprintf(checkvx,"dX = %d", X_accl_n);
+    LCD_drawstring(checkvx,28,35,ILI9341_WHITE, ILI9341_PURPLE);
+    sprintf(checkvy,"dY = %d", Y_accl_n);
+    LCD_drawstring(checkvy,28,50,ILI9341_WHITE, ILI9341_PURPLE);
+    
+    
+    LCD_horzfill(origin_X, origin_Y, X_accl_n, 200, 20, ILI9341_RED, ILI9341_WHITE) ;
+    LCD_vertfill(origin_X, origin_Y, Y_accl_n, 20, 200, ILI9341_RED, ILI9341_WHITE) ;
+    
     
       LATAbits.LATA4 = 1; // high A4 (LED on))
       
@@ -309,11 +491,15 @@ int main() {
       LATAbits.LATA4 = 0; // Low A4 (LED off))
       
        while (_CP0_GET_COUNT() < 23000000){
+           
+           
            //do nothing
       }
       
-   
-      
+   //LCD_drawstring(checkX, 28,50, ILI9341_PURPLE, ILI9341_PURPLE  );
+   //LCD_drawstring(checkY, 28,35, ILI9341_PURPLE, ILI9341_PURPLE  );
+   LCD_drawstring(checkvx,28,35,ILI9341_PURPLE, ILI9341_PURPLE);
+   LCD_drawstring(checkvy,28,50,ILI9341_PURPLE, ILI9341_PURPLE);
      
 
     }
