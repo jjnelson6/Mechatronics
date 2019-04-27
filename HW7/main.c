@@ -154,13 +154,6 @@ void initIMU()
  }
  
  
- 
- 
- 
- 
- 
- 
- 
  void LCD_drawletter(char letter , unsigned short x, unsigned short y , unsigned short text_color, unsigned short bkg_color)
 {
     
@@ -352,19 +345,6 @@ void LCD_vertfill(unsigned short x,  unsigned short y, signed short y_accl_n , i
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 int main() {
 
 
@@ -404,6 +384,7 @@ int main() {
     
     __builtin_enable_interrupts();
     
+    //Initializations 
     initIMU();
     SPI1_init();
     LCD_init();
@@ -478,8 +459,8 @@ int main() {
     LCD_drawstring(checkvy,28,50,ILI9341_WHITE, ILI9341_PURPLE);
     
     
-    LCD_horzfill(origin_X, origin_Y, X_accl_n, 200, 20, ILI9341_RED, ILI9341_WHITE) ;
-    LCD_vertfill(origin_X, origin_Y, Y_accl_n, 20, 200, ILI9341_RED, ILI9341_WHITE) ;
+    LCD_horzfill(origin_X, origin_Y, X_accl_n, 200, 20, ILI9341_RED, ILI9341_WHITE) ;// progress bar for x
+    LCD_vertfill(origin_X, origin_Y, Y_accl_n, 20, 200, ILI9341_RED, ILI9341_WHITE) ; // progress bar for y
     
     
       LATAbits.LATA4 = 1; // high A4 (LED on))
@@ -498,8 +479,8 @@ int main() {
       
    //LCD_drawstring(checkX, 28,50, ILI9341_PURPLE, ILI9341_PURPLE  );
    //LCD_drawstring(checkY, 28,35, ILI9341_PURPLE, ILI9341_PURPLE  );
-   LCD_drawstring(checkvx,28,35,ILI9341_PURPLE, ILI9341_PURPLE);
-   LCD_drawstring(checkvy,28,50,ILI9341_PURPLE, ILI9341_PURPLE);
+   LCD_drawstring(checkvx,28,35,ILI9341_PURPLE, ILI9341_PURPLE);// clear line
+   LCD_drawstring(checkvy,28,50,ILI9341_PURPLE, ILI9341_PURPLE);// clear line
      
 
     }
