@@ -347,12 +347,8 @@ void APP_Initialize(void) {
     setIMU(0x11,0b10001000); // Set Angular rate
     setIMU(0x12,0b00000100); // Control Register 
     
-   
-    
-    
-    
-    LCD_horzbar(origin_X,origin_Y,200,20,ILI9341_WHITE ); // horz bar
-    LCD_vertbar(origin_X,origin_Y,20,200,ILI9341_WHITE ); //vert bar
+    //LCD_horzbar(origin_X,origin_Y,200,20,ILI9341_WHITE ); // horz bar
+    //LCD_vertbar(origin_X,origin_Y,20,200,ILI9341_WHITE ); //vert bar
        
     TRISBbits.TRISB4 = 1;//set switch as input
     LATBbits.LATB4 = 1; //Set high
@@ -490,17 +486,17 @@ void APP_Tasks(void) {
             short X_accl_n =  - Xaccl/100;
             short Y_accl_n = - Yaccl/100;
             
-            LCD_horzfill(origin_X, origin_Y, X_accl_n, 200, 20, ILI9341_RED, ILI9341_WHITE) ;// progress bar for x
-            LCD_vertfill(origin_X, origin_Y, Y_accl_n, 20, 200, ILI9341_RED, ILI9341_WHITE) ; // progress bar for y
+            //LCD_horzfill(origin_X, origin_Y, X_accl_n, 200, 20, ILI9341_RED, ILI9341_WHITE) ;// progress bar for x
+            //LCD_vertfill(origin_X, origin_Y, Y_accl_n, 20, 200, ILI9341_RED, ILI9341_WHITE) ; // progress bar for y
              
             
-            char checkvx[20];
-            char checkvy[20];
+            //char checkvx[20];
+            //char checkvy[20];
     
-            sprintf(checkvx,"dX = %d", X_accl_n);
-            LCD_drawstring(checkvx,28,35,ILI9341_WHITE, ILI9341_PURPLE);
-            sprintf(checkvy,"dY = %d", Y_accl_n);
-            LCD_drawstring(checkvy,28,50,ILI9341_WHITE, ILI9341_PURPLE);
+           // sprintf(checkvx,"dX = %d", X_accl_n);
+            //LCD_drawstring(checkvx,28,35,ILI9341_WHITE, ILI9341_PURPLE);
+           // sprintf(checkvy,"dY = %d", Y_accl_n);
+           // LCD_drawstring(checkvy,28,50,ILI9341_WHITE, ILI9341_PURPLE);
             
             
             
