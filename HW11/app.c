@@ -497,7 +497,12 @@ void APP_Tasks(void) {
         
             
             signed short Xaccl, Yaccl, Zaccl, Xgyro, Ygyro, Zgyro;
+            int k, w, f;
+            //signed short old_Z, old_Y, old_X;
+            signed short new_Z =0; //, new_Y, new_X;
             
+            while(abs(new_Z) < 500)
+            { 
             I2C_read_multiple(0b1101011,0x20,data,14);
            
             Xgyro = (data[3]<<8) | data[2];
@@ -507,6 +512,19 @@ void APP_Tasks(void) {
             Xaccl = ( ((short)data[9]) << 8) | data[8] ;
             Yaccl = ( ((short)data[11]) <<8) | data[10] ;
             Zaccl = ( ((short)data[13]) <<8 ) | data[12] ;
+            new_Z = Zaccl;
+            
+            
+            
+            }
+            
+            
+            
+            
+            
+            
+          
+            
             
             
             //short X_accl_n =  - Xaccl/100;
@@ -532,15 +550,22 @@ void APP_Tasks(void) {
             {
             
             MAF_buffer[MAF_end] = Zaccl;
-            MAF_temp += (MAF_buffer[MAF_end]);
+            
             MAF = MAF_buffer[MAF_end] ;            
             }
             
             else{
-                MAF = (short)(MAF_temp*MAF_div);
-                MAF_temp -= MAF_buffer[MAF_end];
+                
+                for(w=0; w< MAF_N; w++)
+                {
+                MAF_temp += MAF_buffer[w];
+             
+                }
                 MAF_buffer[MAF_end] = Zaccl;
-                MAF_temp += MAF_buffer[MAF_end];
+                
+                MAF = (MAF_temp*MAF_div);
+                MAF_temp = 0;
+                
                 
             }
             
@@ -575,16 +600,19 @@ void APP_Tasks(void) {
             {
             
             FIR_buffer[FIR_end] = Zaccl*FIR_coef[FIR_end];
-            FIR_temp += FIR_buffer[FIR_end];
-            FIR = FIR_buffer[FIR_end];            
+            FIR = Zaccl;            
             }
             
             else {
-                FIR = (short) FIR_temp;
-                FIR_temp -= FIR_buffer[FIR_end] ;
+                for(f=0; f< FIR_N; f++)
+                {
+                FIR_temp += FIR_buffer[f];
+             
+                }
                 FIR_buffer[FIR_end] = Zaccl*FIR_coef[FIR_end];
-                FIR_temp += FIR_buffer[FIR_end];
-                FIR = (short) FIR_temp;
+                FIR = FIR_temp;
+                FIR_temp = 0;
+                
             }
             
             
@@ -601,11 +629,17 @@ void APP_Tasks(void) {
                 IIR = (short)(IIR_A*IIR_old + IIR_B*Zaccl);
                 IIR_old = Zaccl;
             }
-            //
+            //.1 inch, ,121 inch for d gear
         
+        
+         
+         
+         
+        
+            len = sprintf(dataOut, "%i     %d     %d     %d     %d\r\n ", i, Zaccl, MAF, IIR, FIR );
             
+           
             
-            len = sprintf(dataOut, "%i     %d     %d     %d     %d\r\n ", i, Zaccl, -1*abs(MAF), IIR, -1*abs(FIR) );
             //len = sprintf(dataOut, "%i    %d    %d    %d    %f\r\n ", i, Zaccl,-1*abs(MAF), MAF_buffer[MAF_end], MAF_temp/6);
             //len = sprintf(dataOut, "%i  %d  %d  %d \r\n ", i, Xaccl, Yaccl, Zaccl);
             

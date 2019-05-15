@@ -1,7 +1,7 @@
 from pylab import *
 
 
-Filename = "data_5.txt"
+Filename = "data_6.txt"
 
 f= open (Filename, 'r')
 Data= f.readlines()

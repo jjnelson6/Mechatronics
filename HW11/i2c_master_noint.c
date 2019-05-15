@@ -126,14 +126,6 @@ void initIMU()
     //}
     i2c_master_ack(0); // keep reading}
     k++;
-   
-   
-     
-     
-    
-   
-     
-  
   }  
   
   data[k]=i2c_master_recv();
@@ -141,5 +133,10 @@ void initIMU()
   i2c_master_stop(); //stop
 
      
+}     
      
- }
+     
+     
+     
+     
+ 
