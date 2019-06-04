@@ -75,6 +75,48 @@
 #pragma config FVBUSONIO = ON // USB BUSON controlled by USB module
 
 
+void int_motors()
+{
+    TRISBbits.TRISB2 = 0;//set B2 as digital output pin
+    RPB3Rbits.RPB3R = 0b0101;//set B3 as OC1 pin 
+    
+    T2CONbits.TCKPS = 0; // Timer2 prescaler N=1 (1:1)
+
+    PR2 = 2399; // PR = PBCLK / N / desiredF - 1
+
+    TMR2 = 0; // initial TMR2 count is 0
+
+    OC1CONbits.OCM = 0b110; // PWM mode without fault pin; other OC1CON bits are defaults
+
+    OC1RS = 0; // duty cycle
+
+    OC1R = 0; // initialize before turning OC1 on; afterward it is read-only
+
+    T2CONbits.ON = 1; // turn on Timer2
+
+    OC1CONbits.ON = 1; // turn on OC1
+    
+    IEC0bits.T3IE = 1;
+    
+    
+    
+
+}
+
+
+void __ISR(12, IPL5SOFT) Timer3ISR(void) {
+
+IFS0bits.T3IF = 0;
+
+//WriteTimer3ISR(0);// how many times has the interrupt occurred?
+//while (ReadTimer3ISR() < 10000000);
+
+OC1RS = 20; 
+LATBbits.LATB2 = 1; // set the duty cycle and direction pin
+
+}
+
+
 
 
 int main() {
@@ -109,43 +151,44 @@ int main() {
     TRISBbits.TRISB4 = 1;//set switch as input
     LATBbits.LATB4 = 1; //Set high
     TRISAbits.TRISA4 = 0; // output A4 (LED))
-    
+    LATBbits.LATB2 = 0;  // set motor output pin
     __builtin_enable_interrupts();
-
+    
+    
     SPI1_init();
     SPI2_init();
     LCD_init();
+    int_motors();
     LCD_clearScreen(ILI9341_BLUE);
  
     int k=0;
     int Release = 0;
-    unsigned char R_val[240];
-    unsigned char G_val[240];
-    unsigned char B_val[240];
+    //unsigned char R_val[240];
+    //unsigned char G_val[240];
+    //unsigned char B_val[240];
+    short R_val[240];
+    short G_val[240];
+    short B_val[240];
+    
+    char type[5];
+    char test[20];
     
     for (k=0; k < 240; k++){
         R_val[k]= rand() %255;
-        G_val[k] = rand() %255;
-        B_val[k] = rand() % 255;
+        G_val[k] = rand() %255 ;
+        B_val[k] = (rand() % 255);
     
     }
     
+    sprintf(type,"R");
     
-    
+    LCD_Plot_RGB(R_val, type, 20, 120, 180, 100, ILI9341_BLUE);
     
     
     while(1) {
         
-      
-        
-        sprintf(x_val,"X = %d", x);
-        LCD_drawstring(x_val,28,35,ILI9341_WHITE, ILI9341_BLUE);
-        
-        sprintf(y_val,"Y = %d", y);
-        LCD_drawstring(y_val,28,50,ILI9341_WHITE, ILI9341_BLUE);
-        
-        sprintf(z_val,"Z = %d", z);
-        LCD_drawstring(z_val,28,70,ILI9341_WHITE, ILI9341_BLUE);        
+      //Timer3ISR();
+          
         
         
        

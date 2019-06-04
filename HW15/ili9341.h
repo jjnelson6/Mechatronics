@@ -216,5 +216,6 @@ void LCD_horzfill(unsigned short x,  unsigned short y, signed short x_accl_n , i
 void LCD_vertfill(unsigned short x,  unsigned short y, signed short y_accl_n , int len, int wid, unsigned short color_on, unsigned short color_off);
 void XPT2046_read(unsigned short *x, unsigned short *y, unsigned int *z);
 void LCD_touchbox (unsigned short x_cor, unsigned short y_cor, int wid, int len,unsigned short color_on );
-void LCD_Plot_RGB(unsigned char color_val, char title ,unsigned short x_cor, unsigned short y_cor, int y_axis, unsigned short bkg_color );
+//void LCD_Plot_RGB(unsigned char *color_val, char *title ,unsigned short x_cor, unsigned short y_cor, int y_axis, unsigned short bkg_color );
+void LCD_Plot_RGB(short *color_val, char *title ,unsigned short x_cor, unsigned short y_cor, int x_axis, int y_axis,unsigned short bkg_color );
 #endif

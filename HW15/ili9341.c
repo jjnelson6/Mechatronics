@@ -1,6 +1,7 @@
 #include <xc.h>
 #include "ili9341.h"
-
+#include<string.h>
+#include<stdio.h>
 
 
 void LCD_init() {
@@ -587,15 +588,17 @@ void LCD_touchbox (unsigned short x_cor, unsigned short y_cor, int wid, int len 
 }
 
 
-void LCD_Plot_RGB(unsigned char color_val, char title ,unsigned short x_cor, unsigned short y_cor, int y_axis, unsigned short bkg_color )
+void LCD_Plot_RGB(short *color_val, char *title ,unsigned short x_cor, unsigned short y_cor, int x_axis, int y_axis, unsigned short bkg_color )
 {
 
-    int x_axis = 80;
+    
     int i;
     unsigned short color = ILI9341_BLACK;
-    char max_x = x_axis;
-    char max_y = y_axis;
-    short value;
+    char max_x[20];
+    char max_y[20];
+    char x_title[20];
+    short y_value;
+    short x_value;
     
     
     for(i=0; i< x_axis; i++) {
@@ -604,21 +607,27 @@ void LCD_Plot_RGB(unsigned char color_val, char title ,unsigned short x_cor, uns
          
          }
     for ( i = 0; i< y_axis; i++){
-        LCD_drawPixel(x_cor, y_cor+i, color);
+        LCD_drawPixel(x_cor, y_cor-i, color);
     }
     
     for (i =0; i < ILI9341_TFTWIDTH - 2 ; i++ )
     {
-        value = short(  double( color_val[i+2]*double(y_axis/255) )  );
         
-        LCD_drawPixel(x_cor+i+2, y_cor+value);
+        y_value = (short) (color_val[i] * (double)(y_axis/255.0) )  ;
+        x_value = (short)( ( i*(double)(x_axis/240.0) )  );
+        
+        LCD_drawPixel(x_cor + x_value, y_cor-y_value, color);
     }
     
     
-    LCD_drawletter("Pixel in X (0-255)", x_cor+ (x_axis/2), y_cor + 4 ,color, bkg_color);
-    LCD_drawletter(title, x_cor - 4, y_cor + (y_axis/2),color, bkg_color);
+    sprintf(x_title,"Pixel");
+    sprintf(max_x,"240");
+    sprintf(max_y,"255");
     
-    LCD_drawletter(max_y, x_cor - 4, y_cor + y_axis,color, bkg_color);
-    LCD_drawletter(max_x, x_cor + x_axis, y_cor + 4 ,color, bkg_color);
+    LCD_drawstring(x_title, x_cor + (x_axis/3), y_cor + 10 ,color, bkg_color);
+    LCD_drawstring(title, x_cor - 10, y_cor - (y_axis/2),color, bkg_color);
+    
+    LCD_drawstring(max_y, x_cor - 4, y_cor - y_axis,color, bkg_color);
+    LCD_drawstring(max_x, x_cor + x_axis, y_cor + 4 ,color, bkg_color);
      
 }
