@@ -96,23 +96,51 @@ void int_motors()
 
     OC1CONbits.ON = 1; // turn on OC1
     
+    
+    T3CONbits.TCKPS = 0; // Timer3 prescaler N=1 (1:1)
+
+    PR3 = 2399; // PR = PBCLK / N / desiredF - 1
+
+    TMR3 = 0; // initial TMR2 count is 0
+
+    T3CONbits.ON = 1; // turn on Timer2
+ 
     IEC0bits.T3IE = 1;
+    IPC3bits.T3IP = 5; // priority for Timer 3 
+    IFS0bits.T3IF = 0; // initialize flag
     
     
     
 
 }
 
+int count = 0;
 
-void __ISR(12, IPL5SOFT) Timer3ISR(void) {
+void __ISR(_TIMER_3_VECTOR, IPL5SOFT) Timer3ISR(void) {
 
+count++;
 IFS0bits.T3IF = 0;
 
-//WriteTimer3ISR(0);// how many times has the interrupt occurred?
-//while (ReadTimer3ISR() < 10000000);
+if (count > 100)
+{
+LATBbits.LATB2 = 0;
 
-OC1RS = 20; 
-LATBbits.LATB2 = 1; // set the duty cycle and direction pin
+}
+if ( count > 20000 )
+{
+LATBbits.LATB2 = 1;
+count=0;
+}
+
+OC1RS = count % 100;
+
+
+//LATBbits.LATB2 = 1;
+
+
+//LATBbits.LATB2 = 1;
+
+ // set the duty cycle and direction pin
 
 }
 
@@ -151,7 +179,7 @@ int main() {
     TRISBbits.TRISB4 = 1;//set switch as input
     LATBbits.LATB4 = 1; //Set high
     TRISAbits.TRISA4 = 0; // output A4 (LED))
-    LATBbits.LATB2 = 0;  // set motor output pin
+    LATBbits.LATB2 = 1;  // set motor output pin
     __builtin_enable_interrupts();
     
     
