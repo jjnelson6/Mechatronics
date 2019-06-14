@@ -167,7 +167,7 @@ int main() {
         int dim = 0;
         for(x = 0; x < c/2; x++, x2=x2+2){
             dim = d[x2]>>3;
-            bright[x] = d[x2];
+            bright[x] = d[x2]*6; //tried scaling brightness
             for(y=0;y<32;y++){
                 if (y == dim){
                     LCD_drawPixel(x,y+30,ILI9341_BLACK);
@@ -178,7 +178,7 @@ int main() {
             }
         }
         
-        int i = 0;
+        int i = 0 ;
         int sum = 0;
         int sumR = 0;
         int com = 0;
@@ -213,8 +213,9 @@ int main() {
         for(y=0;y<32;y++){
             LCD_drawPixel(com,y+30,ILI9341_RED);
         }
-        
-        
+        char message[100];
+        sprintf(message,"com = %i   ", com);
+        drawString(140,101,message);
         
         
         
@@ -257,12 +258,13 @@ int main() {
         // then set the motor speed and direction to follow the line
         
         _CP0_SET_COUNT(0);
-        while(_CP0_GET_COUNT() < 10000000 ){ //24000000
+        while(_CP0_GET_COUNT() < 22000000 ){ // give camera enough time to register line. 
        
         int speed = 0;
         int e = 0;
         int speed_tolerance = 0;
         int top_speed = 500;
+       
         // try to keep com at c/2/2 using the motors
         DIR1 = 0; // depending on your motor directions these might be different
         DIR2 = 1;
@@ -276,12 +278,12 @@ int main() {
                 speed = top_speed;
             }
             if(speed < speed_tolerance){
-                //speed = 0;
-                DIR2 =0;
+                speed = 0;
+                //DIR1 =1;
             }
             
-            OC4RS = top_speed;
-            OC1RS = speed;
+            OC1RS = top_speed;
+            OC4RS = speed;
         
         
         }
@@ -292,19 +294,19 @@ int main() {
                 speed = top_speed;
             }
             if(speed < speed_tolerance){
-                //speed = 0;
-                DIR1 = 1;
+                speed = 0;
+                //DIR2 = 0;
             }
             
             
-            OC4RS = speed;
-            OC1RS = top_speed;
+            OC1RS = speed;
+            OC4RS = top_speed;
         
         }
         }
         
          _CP0_SET_COUNT(0);
-        while(_CP0_GET_COUNT() < 10000000){
+        while(_CP0_GET_COUNT() < 22000000){
         OC1RS = 0;
         OC4RS = 0;
         
